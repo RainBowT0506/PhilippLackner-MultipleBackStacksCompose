@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
@@ -20,9 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.model.BottomNavigationItem
+import com.rainbowt0506.philipplackner_multiplebackstackscompose.ui.screen.GenericScreen
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.ui.theme.MultipleBackStacksComposeTheme
 
 val items = listOf(
@@ -84,6 +88,42 @@ class MainActivity : ComponentActivity() {
                     },
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        // 頂層起始頁
+                        composable("home") {
+                            GenericScreen("Home 1") { navController.navigate("home2") }
+                        }
+                        composable("chat") {
+                            GenericScreen("Chat 1") { navController.navigate("chat2") }
+                        }
+                        composable("settings") {
+                            GenericScreen("Settings 1") { navController.navigate("settings2") }
+                        }
+
+                        // 多層頁面（Home2 ~ Home10, Chat2 ~ Chat10, Settings2 ~ Settings10）
+                        for (i in 2..10) {
+                            composable("home$i") {
+                                GenericScreen("Home $i") {
+                                    if (i < 10) navController.navigate("home${i + 1}")
+                                }
+                            }
+                            composable("chat$i") {
+                                GenericScreen("Chat $i") {
+                                    if (i < 10) navController.navigate("chat${i + 1}")
+                                }
+                            }
+                            composable("settings$i") {
+                                GenericScreen("Settings $i") {
+                                    if (i < 10) navController.navigate("settings${i + 1}")
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
