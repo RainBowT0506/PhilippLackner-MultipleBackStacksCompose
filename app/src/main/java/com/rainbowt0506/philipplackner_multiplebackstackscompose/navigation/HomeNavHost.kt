@@ -23,10 +23,29 @@ fun HomeNavHost(modifier: Modifier = Modifier) {
                     onNextClick = {
                         if (i < 10) {
                             homeNavController.navigate("home${i + 1}")
+                        } else if (i == 10) {
+                            homeNavController.navigate(MainGraph.SettingScreen)
                         }
                     }
                 )
             }
+        }
+
+        composable<MainGraph.SettingScreen> {
+            SettingScreen(
+                onBackClick = {},
+                onNavToProfile = {},
+                onNavToSubs = {},
+                onNavToDiscount = {},
+                onNavToFaq = {},
+                onNavToContact = {},
+                onNavToTerms = {},
+                onNavToWebsite = {},
+                onNavToFacebook = {},
+                onRestorePurchase = {},
+                onLogout = {},
+                onDeleteAccount = {},
+            )
         }
     }
 }
