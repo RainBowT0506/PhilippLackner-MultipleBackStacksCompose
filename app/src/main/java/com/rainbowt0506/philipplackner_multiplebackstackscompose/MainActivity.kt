@@ -19,6 +19,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -28,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.model.BottomNavigationItem
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.navigation.ChatNavHost
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.navigation.HomeNavHost
+import com.rainbowt0506.philipplackner_multiplebackstackscompose.navigation.MainGraph
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.navigation.SettingsNavHost
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.ui.screen.GenericScreen
 import com.rainbowt0506.philipplackner_multiplebackstackscompose.ui.theme.MultipleBackStacksComposeTheme
@@ -53,6 +57,7 @@ val items = listOf(
     )
 )
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,11 +66,15 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
+
+            var selectedItemIndex by rememberSaveable {
+                mutableIntStateOf(0)
+            }
             MultipleBackStacksComposeTheme {
                 Scaffold(
                     bottomBar = {
                         NavigationBar {
-                            items.forEach { item ->
+                            items.forEachIndexed { index, item ->
                                 val isSelected = item.route == currentRoute
                                 NavigationBarItem(
                                     selected = isSelected,
@@ -77,7 +86,15 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     onClick = {
-                                        navController.navigate(item.route) {
+                                        selectedItemIndex = index
+                                        val screen = when (index) {
+                                            0 -> MainGraph.Home
+                                            1 -> MainGraph.Chat
+                                            2 -> MainGraph.Settings
+                                            else -> MainGraph.Home
+                                        }
+
+                                        navController.navigate(screen){
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = false
                                             }
@@ -93,12 +110,12 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "home",
+                        startDestination = MainGraph.Home,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("home") { HomeNavHost() }
-                        composable("chat") { ChatNavHost() }
-                        composable("settings") { SettingsNavHost() }
+                        composable<MainGraph.Home> { HomeNavHost() }
+                        composable<MainGraph.Chat> { ChatNavHost() }
+                        composable<MainGraph.Settings> { SettingsNavHost() }
                     }
                 }
             }
